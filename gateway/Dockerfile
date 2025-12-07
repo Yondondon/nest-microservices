@@ -2,11 +2,13 @@ FROM node:22.13-alpine
 
 WORKDIR /usr/src/app
 
-COPY package.json package-lock.json ./
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml ./
 COPY tsconfig.json nest-cli.json ./
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 EXPOSE 3000
 
-CMD npm run start:dev
+CMD pnpm run start:dev

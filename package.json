@@ -5,5 +5,8 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "scripts": {}
+  "scripts": {
+    "docker:up": "docker compose down && docker compose up -d",
+    "docker:rebuild": "docker compose down && docker compose up -d --build"
+  }
 }
