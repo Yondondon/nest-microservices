@@ -1,0 +1,59 @@
+services:
+  gateway:
+    container_name: gateway
+    build:
+      context: ./gateway
+      dockerfile: ./Dockerfile
+      args:
+        APP_NAME: gateway
+    command: npm run start:dev -- gateway
+    env_file:
+      - ./gateway/.env
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./gateway/src:/usr/src/app/src
+      - ./gateway/package.json:/usr/src/app/package.json
+      - ./gateway/package-lock.json:/usr/src/app/package-lock.json
+      - ./gateway/tsconfig.json:/usr/src/app/tsconfig.json
+      - ./gateway/tsconfig.build.json:/usr/src/app/tsconfig.build.json
+      - ./gateway/nest-cli.json:/usr/src/app/nest-cli.json
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+  users:
+    container_name: users
+    build:
+      context: ./users
+      dockerfile: ./Dockerfile
+      args:
+        APP_NAME: users
+    command: npm run start:dev -- users
+    env_file:
+      - ./users/.env
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./users/src:/usr/src/app/src
+      - ./users/package.json:/usr/src/app/package.json
+      - ./users/package-lock.json:/usr/src/app/package-lock.json
+      - ./users/tsconfig.json:/usr/src/app/tsconfig.json
+      - ./users/tsconfig.build.json:/usr/src/app/tsconfig.build.json
+      - ./users/nest-cli.json:/usr/src/app/nest-cli.json
+      - /usr/src/app/node_modules
+    ports:
+      - '3001:3001'
+
+#  db:
+#    image: postgres
+#    environment:
+#      - POSTGRES_PASSWORD=${DB_PASSWORD}
+#    container_name: postgres
+#    volumes:
+#      - pgdata:/var/lib/postgresql
+#    ports:
+#      - '${DB_PORT}:${DB_PORT}'
+#
+#volumes:
+#  pgdata:
