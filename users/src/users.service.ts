@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user';
 import { Repository } from 'typeorm';
@@ -24,7 +24,7 @@ export class UsersService {
       }));
 
       return {
-        success: true,
+        status: HttpStatus.OK,
         data: mappedUsers,
         message: 'Users are found successfully',
       };
@@ -33,7 +33,7 @@ export class UsersService {
         error instanceof Error ? error.message : String(error);
 
       return {
-        success: false,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: errorMessage || 'Unknown error',
       };
     }
@@ -47,13 +47,13 @@ export class UsersService {
 
       if (!userEntity) {
         return {
-          success: false,
+          status: HttpStatus.NOT_FOUND,
           message: 'User with such id does not exist',
         };
       }
 
       return {
-        success: true,
+        status: HttpStatus.OK,
         data: {
           name: userEntity.name,
           password: userEntity.password,
@@ -68,7 +68,7 @@ export class UsersService {
         error instanceof Error ? error.message : String(error);
 
       return {
-        success: false,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: errorMessage || 'Unknown error',
       };
     }
@@ -85,7 +85,7 @@ export class UsersService {
 
       if (userEntity) {
         return {
-          success: false,
+          status: HttpStatus.CONFLICT,
           message: 'Such user already exists',
         };
       }
@@ -100,7 +100,7 @@ export class UsersService {
         await this.userRepository.save(newUserData);
 
       return {
-        success: true,
+        status: HttpStatus.CREATED,
         data: { uuid: createdUser.uuid },
         message: 'User is created successfully',
       };
@@ -109,7 +109,7 @@ export class UsersService {
         error instanceof Error ? error.message : String(error);
 
       return {
-        success: false,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: errorMessage || 'Unknown error',
       };
     }
@@ -123,20 +123,23 @@ export class UsersService {
 
       if (!userEntity) {
         return {
-          success: false,
-          message: 'Failed to remove user. Such user does not exist',
+          status: HttpStatus.NOT_FOUND,
+          message: 'Such user does not exist',
         };
       }
 
       await this.userRepository.remove(userEntity);
 
-      return { success: true, message: 'User is deleted successfully' };
+      return {
+        status: HttpStatus.NO_CONTENT,
+        message: 'User is deleted successfully',
+      };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
 
       return {
-        success: false,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: errorMessage || 'Unknown error',
       };
     }

@@ -1,5 +1,7 @@
+import { HttpStatus } from '@nestjs/common';
+
 export interface IBasicResponse<T> {
-  success: boolean;
+  status: HttpStatus;
   data?: T;
   message?: string;
 }
