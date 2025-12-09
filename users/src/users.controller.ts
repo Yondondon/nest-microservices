@@ -1,28 +1,32 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UserDto } from './dto';
+import { MessagePattern } from '@nestjs/microservices';
+import { IBasicResponse, IUser } from './users.interface';
+import { CreateUserDto } from './dto';
 
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  async findAll(): Promise<UserDto[]> {
+  @MessagePattern({ cmd: 'findAll' })
+  async findAll(): Promise<IBasicResponse<IUser[]>> {
     return await this.usersService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<UserDto> {
+  @MessagePattern({ cmd: 'findById' })
+  async findOne(id: string): Promise<IBasicResponse<IUser>> {
     return await this.usersService.findOne(id);
   }
 
-  @Post('create')
-  async create(@Body() createUserDto: CreateUserDto): Promise<string> {
+  @MessagePattern({ cmd: 'create' })
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<IBasicResponse<{ uuid: string }>> {
     return await this.usersService.create(createUserDto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
+  @MessagePattern({ cmd: 'delete' })
+  async remove(id: string): Promise<IBasicResponse<null>> {
     return await this.usersService.remove(id);
   }
 }
