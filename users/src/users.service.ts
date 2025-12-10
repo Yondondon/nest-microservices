@@ -2,8 +2,15 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user';
 import { Repository } from 'typeorm';
-import { IBasicResponse, IUser } from './users.interface';
+import { IGenericResponse, IUser } from './users.interface';
 import { CreateUserDto } from './dto';
+import {
+  buildErrorResponse,
+  buildSuccessResponse,
+  handleError,
+  mapUserEntityToInterface,
+} from './helpers';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -12,136 +19,114 @@ export class UsersService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findAll(): Promise<IBasicResponse<IUser[]>> {
+  async findAll(): Promise<IGenericResponse<IUser[] | null>> {
     try {
-      const users: UserEntity[] = await this.userRepository.find();
-      const mappedUsers: IUser[] = users.map((user: UserEntity) => ({
-        name: user.name,
-        password: user.password,
-        uuid: user.uuid,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      }));
+      const users = await this.userRepository.find();
+      const mappedUsers = users.map((user: UserEntity) =>
+        mapUserEntityToInterface(user),
+      );
 
-      return {
-        status: HttpStatus.OK,
-        data: mappedUsers,
-        message: 'Users are found successfully',
-      };
+      return buildSuccessResponse(mappedUsers, 'Users are found successfully');
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: errorMessage || 'Unknown error',
-      };
+      return handleError(error);
     }
   }
 
-  async findOne(id: string): Promise<IBasicResponse<IUser>> {
+  async findOne(id: string): Promise<IGenericResponse<IUser | null>> {
     try {
-      const userEntity: UserEntity | null = await this.userRepository.findOne({
+      const userEntity = await this.userRepository.findOne({
         where: { uuid: id },
       });
 
       if (!userEntity) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          message: 'User with such id does not exist',
-        };
+        return buildErrorResponse(
+          'User with such id does not exist',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
-      return {
-        status: HttpStatus.OK,
-        data: {
-          name: userEntity.name,
-          password: userEntity.password,
-          uuid: userEntity.uuid,
-          createdAt: userEntity.createdAt,
-          updatedAt: userEntity.updatedAt,
-        },
-        message: 'User is found successfully',
-      };
+      return buildSuccessResponse(
+        mapUserEntityToInterface(userEntity),
+        'User is found successfully',
+      );
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      return handleError(error);
+    }
+  }
 
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: errorMessage || 'Unknown error',
-      };
+  async findOneByName(name: string): Promise<IGenericResponse<IUser | null>> {
+    try {
+      const userEntity = await this.userRepository.findOne({
+        where: { name },
+      });
+
+      if (!userEntity) {
+        return buildErrorResponse(
+          'User with such name does not exist',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return buildSuccessResponse(
+        mapUserEntityToInterface(userEntity),
+        'User is found successfully',
+      );
+    } catch (error) {
+      return handleError(error);
     }
   }
 
   async create(
     newUser: CreateUserDto,
-  ): Promise<IBasicResponse<{ uuid: string }>> {
+  ): Promise<IGenericResponse<{ uuid: string } | null>> {
     try {
-      // const saltOrRounds = 10;
-      const userEntity: UserEntity | null = await this.userRepository.findOne({
+      const userEntity = await this.userRepository.findOne({
         where: { name: newUser.name },
       });
 
       if (userEntity) {
-        return {
-          status: HttpStatus.CONFLICT,
-          message: 'Such user already exists',
-        };
+        return buildErrorResponse(
+          'Such user already exists',
+          HttpStatus.CONFLICT,
+        );
       }
 
-      // const hash: string = await bcrypt.hash(newUser.password, saltOrRounds);
+      const hash: string = await bcrypt.hash(newUser.password, 10);
       const newUserData: Partial<UserEntity> = {
         name: newUser.name,
-        password: newUser.password,
-        // password: hash,
+        password: hash,
       };
       const createdUser: UserEntity =
         await this.userRepository.save(newUserData);
 
-      return {
-        status: HttpStatus.CREATED,
-        data: { uuid: createdUser.uuid },
-        message: 'User is created successfully',
-      };
+      return buildSuccessResponse(
+        { uuid: createdUser.uuid },
+        'User is created successfully',
+        HttpStatus.CREATED,
+      );
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: errorMessage || 'Unknown error',
-      };
+      return handleError(error);
     }
   }
 
-  async remove(uuid: string): Promise<IBasicResponse<null>> {
+  async remove(uuid: string): Promise<IGenericResponse<null>> {
     try {
-      const userEntity: UserEntity | null = await this.userRepository.findOne({
-        where: { uuid },
-      });
+      const deleteResult = await this.userRepository.delete({ uuid });
 
-      if (!userEntity) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          message: 'Such user does not exist',
-        };
+      if (deleteResult.affected === 0) {
+        return buildErrorResponse(
+          'Such user does not exist',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
-      await this.userRepository.remove(userEntity);
-
-      return {
-        status: HttpStatus.NO_CONTENT,
-        message: 'User is deleted successfully',
-      };
+      return buildSuccessResponse(
+        null,
+        'User is deleted successfully',
+        HttpStatus.NO_CONTENT,
+      );
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: errorMessage || 'Unknown error',
-      };
+      return handleError(error);
     }
   }
 }

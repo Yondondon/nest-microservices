@@ -13,3 +13,13 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ISignInResponse {
+  userId: string;
+  accessToken: string;
+}
+
+export interface ISignInData {
+  username: string;
+  password: string;
+}

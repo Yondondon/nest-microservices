@@ -17,7 +17,7 @@ import { sendMicroserviceCommand } from '../helpers';
 @Controller('users')
 export class UsersController {
   constructor(
-    @Inject('USERS_SERVICE') private readonly usersClientProxy: ClientProxy,
+    @Inject('USERS_CLIENT') private readonly usersClientProxy: ClientProxy,
   ) {}
 
   @Get()
