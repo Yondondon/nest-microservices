@@ -24,7 +24,7 @@ export class UsersController {
   async findAll() {
     return sendMicroserviceCommand<IUser[]>(
       this.usersClientProxy,
-      'findAll',
+      { cmd: 'findAll' },
       {},
       HttpStatus.OK,
     );
@@ -34,7 +34,7 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     return sendMicroserviceCommand<IUser>(
       this.usersClientProxy,
-      'findById',
+      { cmd: 'findById' },
       id,
       HttpStatus.OK,
     );
@@ -45,7 +45,7 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto) {
     return sendMicroserviceCommand<ICreateUserResponse>(
       this.usersClientProxy,
-      'create',
+      { cmd: 'create' },
       createUserDto,
       HttpStatus.CREATED,
     );
@@ -56,7 +56,7 @@ export class UsersController {
   async remove(@Param('id') id: string) {
     return sendMicroserviceCommand<null>(
       this.usersClientProxy,
-      'delete',
+      { cmd: 'delete' },
       id,
       HttpStatus.NO_CONTENT,
     );

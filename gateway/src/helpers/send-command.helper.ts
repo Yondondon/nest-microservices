@@ -5,12 +5,12 @@ import { IGenericResponse } from '../interface';
 
 export async function sendMicroserviceCommand<T>(
   clientProxy: ClientProxy,
-  cmd: string,
+  message: Record<string, string>,
   payload: any,
   expectedStatus: HttpStatus,
 ): Promise<IGenericResponse<T>> {
   const response: IGenericResponse<T> = await firstValueFrom(
-    clientProxy.send({ cmd }, payload),
+    clientProxy.send(message, payload),
   );
 
   if (response.status !== expectedStatus) {

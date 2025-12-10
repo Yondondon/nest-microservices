@@ -43,6 +43,28 @@ services:
       - ./users/nest-cli.json:/usr/src/app/nest-cli.json
       - /usr/src/app/node_modules
 
+
+  auth:
+    container_name: auth
+    build:
+      context: ./auth
+      dockerfile: ./Dockerfile
+      args:
+        APP_NAME: auth
+    command: pnpm run start:dev -- auth
+    env_file:
+      - ./auth/.env
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./auth/src:/usr/src/app/src
+      - ./auth/package.json:/usr/src/app/package.json
+      - ./auth/pnpm-lock.yaml:/usr/src/app/pnpm-lock.yaml
+      - ./auth/tsconfig.json:/usr/src/app/tsconfig.json
+      - ./auth/tsconfig.build.json:/usr/src/app/tsconfig.build.json
+      - ./auth/nest-cli.json:/usr/src/app/nest-cli.json
+      - /usr/src/app/node_modules
+
   db:
     image: postgres
     environment:
