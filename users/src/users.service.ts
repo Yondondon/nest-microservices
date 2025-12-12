@@ -54,10 +54,12 @@ export class UsersService {
     }
   }
 
-  async findOneByName(name: string): Promise<IGenericResponse<IUser | null>> {
+  async findOneByUsername(
+    username: string,
+  ): Promise<IGenericResponse<IUser | null>> {
     try {
       const userEntity = await this.userRepository.findOne({
-        where: { name },
+        where: { username },
       });
 
       if (!userEntity) {
@@ -81,7 +83,7 @@ export class UsersService {
   ): Promise<IGenericResponse<{ uuid: string } | null>> {
     try {
       const userEntity = await this.userRepository.findOne({
-        where: { name: newUser.name },
+        where: { username: newUser.username },
       });
 
       if (userEntity) {
@@ -93,7 +95,7 @@ export class UsersService {
 
       const hash: string = await bcrypt.hash(newUser.password, 10);
       const newUserData: Partial<UserEntity> = {
-        name: newUser.name,
+        username: newUser.username,
         password: hash,
       };
       const createdUser: UserEntity =

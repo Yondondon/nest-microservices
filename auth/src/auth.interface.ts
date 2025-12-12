@@ -7,19 +7,19 @@ export interface IGenericResponse<T> {
 }
 
 export interface IUser {
-  name: string;
+  username: string;
   password: string;
   uuid: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface ISignInResponse {
-  userId: string;
-  accessToken: string;
-}
-
 export interface ISignInData {
   username: string;
   password: string;
+}
+
+export interface JwtPayload {
+  sub: string;
+  username: string;
 }

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { IGenericResponse } from '../interface';
+import { IGenericResponse } from '../interfaces';
 
 export async function sendMicroserviceCommand<T>(
   clientProxy: ClientProxy,

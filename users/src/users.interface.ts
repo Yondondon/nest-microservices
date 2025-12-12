@@ -7,7 +7,7 @@ export interface IGenericResponse<T> {
 }
 
 export interface IUser {
-  name: string;
+  username: string;
   password: string;
   uuid: string;
   createdAt: Date;

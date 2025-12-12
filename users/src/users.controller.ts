@@ -18,9 +18,11 @@ export class UsersController {
     return await this.usersService.findOne(id);
   }
 
-  @MessagePattern({ cmd: 'findByName' })
-  async findOneByName(name: string): Promise<IGenericResponse<IUser | null>> {
-    return await this.usersService.findOneByName(name);
+  @MessagePattern({ cmd: 'findByUsername' })
+  async findOneByUsername(
+    username: string,
+  ): Promise<IGenericResponse<IUser | null>> {
+    return await this.usersService.findOneByUsername(username);
   }
 
   @MessagePattern({ cmd: 'create' })

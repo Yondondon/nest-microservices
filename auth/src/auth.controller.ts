@@ -11,7 +11,11 @@ export class AuthController {
   async signIn(
     signInData: ISignInData,
   ): Promise<IGenericResponse<{ accessToken: string } | null>> {
-    console.log(signInData);
     return await this.authService.signIn(signInData);
+  }
+
+  @MessagePattern({ cmd: 'verifyToken' })
+  async verifyToken(token: string) {
+    return await this.authService.verifyToken(token);
   }
 }

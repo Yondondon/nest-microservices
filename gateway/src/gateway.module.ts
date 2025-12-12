@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UsersController } from './controllers/users.controller';
 import { AuthController } from './controllers/auth.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
@@ -21,6 +23,11 @@ import { AuthController } from './controllers/auth.controller';
     ]),
   ],
   controllers: [UsersController, AuthController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class GatewayModule {}

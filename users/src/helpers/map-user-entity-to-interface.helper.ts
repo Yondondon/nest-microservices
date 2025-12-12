@@ -3,7 +3,7 @@ import { UserEntity } from '../entities/user';
 
 export const mapUserEntityToInterface = (userEntity: UserEntity): IUser => {
   return {
-    name: userEntity.name,
+    username: userEntity.username,
     password: userEntity.password,
     uuid: userEntity.uuid,
     createdAt: userEntity.createdAt,
