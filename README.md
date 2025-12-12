@@ -4,4 +4,4 @@ In a process of creating a microservices' app.
 
 - NestJS (TypeScript)
 
-In the future I plan to migrate from built-in Transport to RabbitMQ of Kafka
+In the future I plan to migrate from built-in Transport to RabbitMQ or Kafka
