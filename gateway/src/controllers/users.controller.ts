@@ -1,19 +1,22 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Inject,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   Post,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ICreateUserResponse, IUser } from '../interfaces';
 import { CreateUserDto } from '../dto';
-import { sendMicroserviceCommand } from '../helpers';
-import { PublicRoute } from '../decorators';
+import { isRpcError } from '../helpers';
+import { catchError, firstValueFrom } from 'rxjs';
 
 @Controller('users')
 export class UsersController {
@@ -23,44 +26,73 @@ export class UsersController {
 
   @Get()
   async findAll() {
-    return sendMicroserviceCommand<IUser[]>(
-      this.usersClient,
-      { cmd: 'findAll' },
-      {},
-      HttpStatus.OK,
+    return await firstValueFrom<IUser[]>(
+      this.usersClient.send<IUser[]>({ cmd: 'findAll' }, {}).pipe(
+        catchError((err) => {
+          if (isRpcError(err)) {
+            if (err.code.includes('INTERNAL')) {
+              throw new InternalServerErrorException(err.message);
+            }
+            throw new NotFoundException(err.message);
+          }
+          throw err;
+        }),
+      ),
     );
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return sendMicroserviceCommand<IUser>(
-      this.usersClient,
-      { cmd: 'findById' },
-      id,
-      HttpStatus.OK,
+    return await firstValueFrom<IUser>(
+      this.usersClient.send<IUser>({ cmd: 'findById' }, id).pipe(
+        catchError((err) => {
+          if (isRpcError(err)) {
+            if (err.code === 'USER_NOT_FOUND') {
+              throw new NotFoundException(err.message);
+            }
+            throw new InternalServerErrorException(err.message);
+          }
+          throw err;
+        }),
+      ),
     );
   }
 
-  @PublicRoute()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
-    return sendMicroserviceCommand<ICreateUserResponse>(
-      this.usersClient,
-      { cmd: 'create' },
-      createUserDto,
-      HttpStatus.CREATED,
+    return await firstValueFrom<ICreateUserResponse>(
+      this.usersClient
+        .send<ICreateUserResponse>({ cmd: 'create' }, createUserDto)
+        .pipe(
+          catchError((err) => {
+            if (isRpcError(err)) {
+              if (err.code === 'USER_EXISTS') {
+                throw new ConflictException(err.message);
+              }
+              throw new InternalServerErrorException(err.message);
+            }
+            throw err;
+          }),
+        ),
     );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
-    return sendMicroserviceCommand<null>(
-      this.usersClient,
-      { cmd: 'delete' },
-      id,
-      HttpStatus.NO_CONTENT,
+    return await firstValueFrom<boolean>(
+      this.usersClient.send<boolean>({ cmd: 'create' }, id).pipe(
+        catchError((err) => {
+          if (isRpcError(err)) {
+            if (err.code === 'USER_NOT_DELETED') {
+              throw new NotFoundException(err.message);
+            }
+            throw new InternalServerErrorException(err.message);
+          }
+          throw err;
+        }),
+      ),
     );
   }
 }

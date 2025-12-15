@@ -5,3 +5,8 @@ export interface IGenericResponse<T> {
   data: T;
   message?: string;
 }
+
+export interface RpcError {
+  code: string;
+  message: string;
+}
