@@ -1,8 +1,17 @@
-import { Body, Controller, HttpStatus, Inject, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { sendMicroserviceCommand } from '../helpers';
-
-import { PublicRoute } from '../decorators';
+import { JwtAuthGuard, LocalAuthGuard } from '../guards';
+import type { AuthenticatedRequest } from '../interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -10,16 +19,23 @@ export class AuthController {
     @Inject('AUTH_CLIENT') private readonly authClient: ClientProxy,
   ) {}
 
-  @PublicRoute()
-  @Post()
-  async signIn(@Body() data: { username: string; password: string }) {
-    return sendMicroserviceCommand<{ accessToken: string } | null>(
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
+  @Post('login')
+  login(@Request() req: AuthenticatedRequest) {
+    return sendMicroserviceCommand<{ accessToken: string }>(
       this.authClient,
-      { cmd: 'signIn' },
-      { username: data.username, password: data.password },
+      { cmd: 'login' },
+      req.user,
       HttpStatus.OK,
     );
   }
 
-  // TODO: /me and /signOut routes
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req: AuthenticatedRequest) {
+    return req.user;
+  }
+
+  // TODO: /me and /logout routes
 }

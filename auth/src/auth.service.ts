@@ -75,4 +75,40 @@ export class AuthService {
   // async signUp(username: string, password: string): Promise<any> {
   //   return await this.usersService.create({ username, password });
   // }
+
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<IUser | null> {
+    const userResponse: IGenericResponse<IUser | null> = await firstValueFrom(
+      this.usersClient.send({ cmd: 'findByUsername' }, username),
+    );
+
+    if (!userResponse || !userResponse.data) {
+      return null;
+    }
+
+    const user: IUser = userResponse.data;
+    const isMatch: boolean = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
+      return user;
+    }
+
+    return null;
+  }
+
+  async login(
+    user: IUser,
+  ): Promise<IGenericResponse<{ accessToken: string } | null>> {
+    const payload = { sub: user.uuid, username: user.username };
+
+    return buildSuccessResponse(
+      {
+        accessToken: await this.jwtService.signAsync(payload),
+      },
+      'Authenticated successfully',
+      HttpStatus.OK,
+    );
+  }
 }

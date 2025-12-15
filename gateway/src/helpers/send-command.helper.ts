@@ -8,17 +8,17 @@ export async function sendMicroserviceCommand<T>(
   message: Record<string, string>,
   payload: any,
   expectedStatus: HttpStatus,
-): Promise<IGenericResponse<T>> {
+): Promise<T> {
   const response: IGenericResponse<T> = await firstValueFrom(
     clientProxy.send(message, payload),
   );
 
   if (response.status !== expectedStatus) {
     throw new HttpException(
-      response.message || '',
+      response.message || 'Unknown error',
       response.status || HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
 
-  return response;
+  return response.data;
 }

@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UsersController } from './controllers/users.controller';
 import { AuthController } from './controllers/auth.controller';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './guards/auth.guard';
+import { JwtStrategy, LocalStrategy } from './strategies';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     ClientsModule.register([
       {
         name: 'USERS_CLIENT',
@@ -23,11 +24,6 @@ import { AuthGuard } from './guards/auth.guard';
     ]),
   ],
   controllers: [UsersController, AuthController],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-  ],
+  providers: [LocalStrategy, JwtStrategy],
 })
 export class GatewayModule {}
