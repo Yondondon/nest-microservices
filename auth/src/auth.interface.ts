@@ -15,3 +15,13 @@ export interface RpcError {
   code: string;
   message: string;
 }
+
+export interface ILoginResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface IRefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}

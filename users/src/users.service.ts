@@ -20,9 +20,9 @@ export class UsersService {
     return users.map((user: UserEntity) => mapUserEntityToInterface(user));
   }
 
-  async findOne(id: string): Promise<IUser> {
+  async findOne(uuid: string): Promise<IUser> {
     const userEntity = await this.userRepository.findOne({
-      where: { uuid: id },
+      where: { uuid },
     });
 
     if (!userEntity) {

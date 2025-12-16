@@ -47,9 +47,9 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') uuid: string) {
     return await firstValueFrom<IUser>(
-      this.usersClient.send<IUser>({ cmd: 'findById' }, id).pipe(
+      this.usersClient.send<IUser>({ cmd: 'findByUuid' }, uuid).pipe(
         catchError((err) => {
           if (isRpcError(err)) {
             if (err.code === 'USER_NOT_FOUND') {

@@ -12,9 +12,9 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
-  @MessagePattern({ cmd: 'findById' })
-  async findOne(id: string) {
-    return await this.usersService.findOne(id);
+  @MessagePattern({ cmd: 'findByUuid' })
+  async findOne(uuid: string) {
+    return await this.usersService.findOne(uuid);
   }
 
   @MessagePattern({ cmd: 'findByUsername' })

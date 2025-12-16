@@ -43,7 +43,6 @@ services:
       - ./users/nest-cli.json:/usr/src/app/nest-cli.json
       - /usr/src/app/node_modules
 
-
   auth:
     container_name: auth
     build:
@@ -56,6 +55,8 @@ services:
       - ./auth/.env
     environment:
       NODE_ENV: development
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     volumes:
       - ./auth/src:/usr/src/app/src
       - ./auth/package.json:/usr/src/app/package.json
@@ -64,6 +65,24 @@ services:
       - ./auth/tsconfig.build.json:/usr/src/app/tsconfig.build.json
       - ./auth/nest-cli.json:/usr/src/app/nest-cli.json
       - /usr/src/app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   db:
     image: postgres
@@ -79,3 +98,4 @@ services:
 
 volumes:
   pgdata:
+  redisdata:

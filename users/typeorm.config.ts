@@ -5,7 +5,7 @@ config();
 
 export default new DataSource({
   type: 'postgres',
-  host: 'localhost', // hardcoded 'localhost' because typeorm cli work outside docker container
+  host: 'localhost', // hardcoded 'localhost' because typeorm cli works outside docker container
   port: Number(process.env.DB_PORT),
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
