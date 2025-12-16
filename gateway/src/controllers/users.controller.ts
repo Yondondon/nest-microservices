@@ -11,12 +11,15 @@ import {
   NotFoundException,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ICreateUserResponse, IUser } from '../interfaces';
 import { CreateUserDto } from '../dto';
 import { isRpcError } from '../helpers';
 import { catchError, firstValueFrom } from 'rxjs';
+import { JwtAuthGuard } from '../guards';
+import { PublicRoute } from '../decorators';
 
 @Controller('users')
 export class UsersController {
@@ -24,6 +27,7 @@ export class UsersController {
     @Inject('USERS_CLIENT') private readonly usersClient: ClientProxy,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll() {
     return await firstValueFrom<IUser[]>(
@@ -41,6 +45,7 @@ export class UsersController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await firstValueFrom<IUser>(
@@ -58,8 +63,8 @@ export class UsersController {
     );
   }
 
+  @PublicRoute()
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
     return await firstValueFrom<ICreateUserResponse>(
       this.usersClient
@@ -78,8 +83,9 @@ export class UsersController {
     );
   }
 
-  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
   async remove(@Param('id') id: string) {
     return await firstValueFrom<boolean>(
       this.usersClient.send<boolean>({ cmd: 'create' }, id).pipe(

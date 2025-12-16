@@ -20,7 +20,7 @@ services:
       - ./gateway/nest-cli.json:/usr/src/app/nest-cli.json
       - /usr/src/app/node_modules
     ports:
-      - '3000:3000'
+      - '3001:3001'
 
   users:
     container_name: users

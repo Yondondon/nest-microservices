@@ -12,14 +12,14 @@ import { PassportModule } from '@nestjs/passport';
       {
         name: 'USERS_CLIENT',
         transport: Transport.TCP,
-        options: { host: 'users', port: 3001 },
+        options: { host: 'users', port: 5001 },
       },
     ]),
     ClientsModule.register([
       {
         name: 'AUTH_CLIENT',
         transport: Transport.TCP,
-        options: { host: 'auth', port: 3002 },
+        options: { host: 'auth', port: 5002 },
       },
     ]),
   ],

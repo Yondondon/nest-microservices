@@ -1,11 +1,3 @@
-import { HttpStatus } from '@nestjs/common';
-
-export interface IGenericResponse<T> {
-  status: HttpStatus;
-  data: T;
-  message?: string;
-}
-
 export interface IUser {
   username: string;
   password: string;
@@ -14,12 +6,12 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export interface ISignInData {
+export interface ILoginData {
   username: string;
   password: string;
 }
 
-export interface JwtPayload {
-  sub: string;
-  username: string;
+export interface RpcError {
+  code: string;
+  message: string;
 }

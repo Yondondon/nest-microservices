@@ -1,3 +1,1 @@
-export * from './build-success-response.helper';
-export * from './build-error-response.helper';
-export * from './handle-error.helper';
+export * from './is-rpc-error.helper';

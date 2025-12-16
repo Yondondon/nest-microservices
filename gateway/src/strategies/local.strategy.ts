@@ -1,9 +1,15 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 import { IUser } from '../interfaces';
+import { isRpcError } from '../helpers';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -13,14 +19,20 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
   async validate(username: string, password: string): Promise<any> {
     const userData = { username, password };
-    const userResponse: IUser | null = await firstValueFrom<IUser | null>(
-      this.authClient.send({ cmd: 'validateUser' }, userData),
+    return await firstValueFrom(
+      this.authClient.send<IUser>({ cmd: 'validateUser' }, userData).pipe(
+        catchError((err) => {
+          if (isRpcError(err)) {
+            if (err.code.startsWith('AUTH_') || err.code.startsWith('USER_')) {
+              throw new UnauthorizedException(err.message);
+            }
+            throw new InternalServerErrorException(
+              'Unauthorized. Error occurred during authentication',
+            );
+          }
+          throw err;
+        }),
+      ),
     );
-
-    if (!userResponse) {
-      throw new UnauthorizedException();
-    }
-
-    return userResponse;
   }
 }

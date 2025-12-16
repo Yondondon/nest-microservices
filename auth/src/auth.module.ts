@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -10,7 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
       {
         name: 'USERS_CLIENT',
         transport: Transport.TCP,
-        options: { host: 'users', port: 3001 },
+        options: { host: 'users', port: 5001 },
       },
     ]),
     JwtModule.register({

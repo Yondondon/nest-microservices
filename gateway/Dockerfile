@@ -9,6 +9,6 @@ COPY tsconfig.json nest-cli.json ./
 
 RUN pnpm install --frozen-lockfile
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD pnpm run start:dev
