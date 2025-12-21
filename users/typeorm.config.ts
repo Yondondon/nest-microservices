@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 
@@ -10,6 +11,6 @@ export default new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: ['src/entities/**/*.entity{.ts,.ts}'],
+  entities: ['src/entities/**/*.entity.ts'],
   migrations: ['src/database/migrations/*.ts'],
 });

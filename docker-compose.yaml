@@ -89,7 +89,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass123
-      POSTGRES_DB: defaultdb
+      POSTGRES_DB: postgres
     container_name: db
     volumes:
       - pgdata:/var/lib/postgresql
